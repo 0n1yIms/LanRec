@@ -9,8 +9,6 @@ size_t ptrdis(char *begin, char *end)
   return abs(end - begin);
 }
 
-
-
 // lexer character
 
 LexerChar::LexerChar(char c)
@@ -49,7 +47,8 @@ string LexerChar::toString()
       str += chars[chars.size() - 1];
       str += "]";
     }
-    else {
+    else
+    {
       str += "[";
       for (int i = 0; i < chars.size(); i++)
       {
@@ -69,101 +68,164 @@ LexerCharN::LexerCharN(LexerChar lexchar)
   this->lexchar.push_back(lexchar);
 }
 
-LexerCharN::LexerCharN(vector<LexerCharN> chars, int clausure)
+LexerCharN::LexerCharN(LexerToken token, int clausure)
 {
-  this->charsN = chars;
+  this->tokens.push_back(token);
   this->clausure = clausure;
 }
-// compare once with all characters
-bool LexerCharN::compare(char *&c, char * end)
-{
-  char *beg = c;
-  for (int i = 0; i < charsN.size(); i++)
-  {
-    if(ptrdis(beg, end) < i)
-      return false;
-    LexerCharN &character = charsN.at(i);
-    cout << character.toString() << endl;
-    if (!character.cmp(beg, end))
-      return false;
-    
-  }
-  return true;
-}
+// bool LexerCharN::cmp(char *&c, char *end)
+// {
+//   for (int i = 0; i < tokens.size(); i++)
+//   {
+//     currentToken = i;
+//     if (cmp2(c, end))
+//       return true;
+//   }
+//   return false;
+// }
+
 bool LexerCharN::cmp(char *&c, char *end)
 {
-  if(lexchar.size() != 0){
+  // LexerToken charsN = tokens[currentToken];
+  if (lexchar.size() != 0)
+  {
     bool eq = lexchar[0].cmp(*c);
-    if(eq)
+    if (eq)
       c++;
     return eq;
   }
-  if (clausure == LEXER_CHAR_NORMAL)
+  char *original = c;
+  vector<int> tokenDistance(tokens.size());
+
+  for (int tokenIdx = 0; tokenIdx < tokens.size(); tokenIdx++)
   {
-    if (ptrdis(c, end) < charsN.size())
-      return false;
-    bool eq = compare(c, end);
-    if (eq)
+
+    if (clausure == LEXER_CHAR_NORMAL)
     {
-      c += charsN.size();
-      return true;
-    }
-  }
-  else if (clausure == LEXER_CHAR_PLUS)
-  {
-    int equals = 0;
-    while (ptrdis(c, end) > charsN.size())
-    {
-      bool eq = compare(c, end);
+      if (ptrdis(c, end) < tokens[tokenIdx].size()){
+        tokenDistance[tokenIdx] = -1;
+        continue;
+        // return false;
+      }
+
+      bool eq = true; // compare(c, end);
+      for (int i = 0; i < tokens[tokenIdx].size(); i++)
+      {
+        LexerCharN &character = tokens[tokenIdx].at(i);
+        cout << character.toString() << endl;
+
+        if (!character.cmp(c, end))
+        {
+          eq = false;
+          break;
+        }
+      }
+
       if (eq)
       {
-        equals++;
-        c += charsN.size();
+        // c += charsN.size();
+        tokenDistance[tokenIdx] = ptrdis(c, original);
+        continue;
+        // return true;
       }
-      else
-        break;
+      else{
+        tokenDistance[tokenIdx] = -1;
+        continue;
+        // return false;
+      }
     }
-    if (equals > 0)
-      return true;
-    else
-      return false;
-  }
-  else
-  {
-    int equals = 0;
-    
-    while (ptrdis(c, end) > charsN.size())
+    else if (clausure == LEXER_CHAR_PLUS)
     {
-      bool eq = compare(c, end);
-      if (eq)
+      int equals = 0;
+      while (ptrdis(c, end) > tokens[tokenIdx].size())
       {
-        equals++;
-        c += charsN.size();
+        bool eq = true; // compare(c, end);
+        for (int i = 0; i < tokens[tokenIdx].size(); i++)
+        {
+          LexerCharN &character = tokens[tokenIdx].at(i);
+          cout << character.toString() << endl;
+
+          if (!character.cmp(c, end))
+          {
+            eq = false;
+            break;
+          }
+        }
+        if (eq)
+        {
+          equals++;
+          // c += charsN.size();
+        }
+        else
+          break;
       }
+      if (equals > 0)
+        return true;
       else
-        break;
+        return false;
     }
-    if (equals >= 0)
-      return true;
     else
-      return false;
+    {
+      int equals = 0;
+
+      while (ptrdis(c, end) > tokens[tokenIdx].size())
+      {
+        bool eq = true; // compare(c, end);
+        for (int i = 0; i < tokens[tokenIdx].size(); i++)
+        {
+          LexerCharN &character = tokens[tokenIdx].at(i);
+          cout << character.toString() << endl;
+
+          if (!character.cmp(c, end))
+          {
+            eq = false;
+            break;
+          }
+        }
+        if (eq)
+        {
+          equals++;
+          // c += charsN.size();
+        }
+        else
+          break;
+      }
+      if (equals >= 0)
+        return true;
+      else
+        return false;
+    }
   }
 }
 string LexerCharN::toString()
 {
-  if(lexchar.size() != 0)
+  if (lexchar.size() != 0)
     return lexchar[0].toString();
+
   string str = "(";
-  for (int i = 0; i < charsN.size(); i++)
-    str += " " + charsN[i].toString() + " ";
-  str += ")";
-  if (clausure == LEXER_CHAR_PLUS)
-    str += "+";
-  else if (clausure == LEXER_CHAR_CLAIN)
-    str += "*";
+  for (int i = 0; i < tokens.size(); i++)
+  {
+    str += "(";
+    for (int j = 0; j < tokens[i].size(); j++)
+      str += " " + tokens[i][j].toString() + " ";
+    str += ")";
+    if (clausure == LEXER_CHAR_PLUS)
+      str += "+";
+    else if (clausure == LEXER_CHAR_CLAIN)
+      str += "*";
+    str += ")";
+
+    if (i != tokens.size() - 1)
+      str += " | ";
+  }
   return str;
 }
+void LexerCharN:: or (LexerToken token)
+{
+  this->tokens.push_back(token);
+}
 
+/*
 // lexer token
 LexerToken::LexerToken(vector<LexerCharN> tokens, int clausure)
 {
@@ -193,7 +255,6 @@ LexerRule::LexerRule(vector<LexerToken> tokens)
   // this->type = type;
 }
 
-
 Lexer::Lexer()
 {
 }
@@ -213,3 +274,4 @@ void Lexer::lex(char *str, int len)
   inputLen = len;
   idx = 0;
 }
+*/
