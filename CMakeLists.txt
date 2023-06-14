@@ -4,7 +4,7 @@ project(LenRec)
 
 
 
-add_subdirectory(lenRec)
+add_subdirectory(LenRec)
 
 
 add_executable(main main.cpp)

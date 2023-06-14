@@ -1,7 +1,8 @@
 #include <iostream>
 #include <lexer.h>
 #include <vector>
-#include <AutomatonPushDown.h>
+#include <automatonPushDown.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -193,6 +194,8 @@ int main(){
 
   cout << "text: " << text << "\n\n";
   lexer.lexPrint(text);
+  
+
 
 
   

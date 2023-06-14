@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include <iostream>
+#include <iomanip>
 #include <math.h>
 
 using namespace std;
@@ -292,7 +293,7 @@ string LexerCharN::toString()
   }
   return str;
 }
-void LexerCharN:: or (LexerToken token)
+void LexerCharN::orRule(LexerToken token)
 {
   this->tokens.push_back(token);
 }
@@ -310,50 +311,19 @@ void Lexer::addRule(LexerCharN &rule, char *tokenName)
 
 void Lexer::lexPrint(char *c)
 {
-  int len = strlen(c);
-  char *end = c + len;
+  vector<Token> tokens = lex(c);
 
-  while (c != end)
+  for (int i = 0; i < tokens.size(); i++)
   {
-    vector<char *> tokenDistance(rules.size());
-    for (int i = 0; i < rules.size(); i++)
-    {
-      LexerCharN &rule = rules[i].first;
-      char *tokenName = rules[i].second;
-
-      char *cToken = c;
-      if (!rule.cmp(cToken, end))
-        tokenDistance[i] = nullptr;
-      else
-        tokenDistance[i] = cToken;
-    }
-    int max = 0;
-    int id = -1;
-    for (int i = tokenDistance.size() - 1; i >= 0; i--)
-    {
-      if (tokenDistance[i] != nullptr)
-      {
-        int dis = ptrdis(c, tokenDistance[i]);
-        if (dis >= max)
-        {
-          max = dis;
-          id = i;
-        }
-      }
-    }
-    if (id != -1)
-    {
-      c = tokenDistance[id];
-      cout << rules[id].second << endl;
-    }
-    else 
-      break;
+    cout << setw(12) << tokens[i].name << " '";
+    string str(tokens[i].start, tokens[i].end);
+    cout << str << "'" << endl;
   }
 }
 
-vector<char*> Lexer::lex(char *c)
+vector<Token> Lexer::lex(char *c)
 {
-  vector<char*> tokens;
+  vector<Token> tokens;
   int len = strlen(c);
   char *end = c + len;
 
@@ -387,8 +357,12 @@ vector<char*> Lexer::lex(char *c)
     }
     if (id != -1)
     {
+      Token token;
+      token.name = rules[id].second;
+      token.start = c;
+      token.end = tokenDistance[id];
       c = tokenDistance[id];
-      tokens.push_back(rules[id].second);
+      tokens.push_back(token);
     }
     else 
       break;

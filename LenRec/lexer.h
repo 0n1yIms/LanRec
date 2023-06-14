@@ -10,12 +10,12 @@
 
 class LexerChar;
 class LexerCharN;
-// class LexerToken;
 class LexerRule;
 class Lexer;
-
+struct Token;
 
 typedef std::vector<LexerCharN> LexerToken;
+
 
 class LexerChar
 {
@@ -38,14 +38,13 @@ class LexerCharN {
 private:
   std::vector<LexerChar> lexchar;
   std::vector<LexerToken> tokens;
-  // int currentToken;
   int clausure;
 
 public:
   LexerCharN(LexerChar lexchar);
   LexerCharN(LexerToken token, int clausure = LEXER_CHAR_NORMAL);
   bool cmp(char* &c, char *end);
-  void or(LexerToken token);
+  void orRule(LexerToken token);
 
   std::string toString();
 };
@@ -67,10 +66,16 @@ public:
 
   void addRule(LexerCharN &rule, char* tokenName);
   void lexPrint(char* str);
-  std::vector<char*> lex(char* str);
+  std::vector<Token> lex(char* str);
 };
 
+struct Token
+{
+  char* name;
+  char* start;
+  char* end;
 
+};
 
 
 
