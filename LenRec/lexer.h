@@ -27,6 +27,7 @@ public:
   LexerChar(char from, char to);
 
   void add(char c);
+  void add(char from, char to);
   bool cmp(char c);
   std::string toString();
 };
@@ -40,7 +41,6 @@ private:
   // int currentToken;
   int clausure;
 
-  // bool cmp2(char* &c, char *end);
 public:
   LexerCharN(LexerChar lexchar);
   LexerCharN(LexerToken token, int clausure = LEXER_CHAR_NORMAL);
@@ -50,38 +50,11 @@ public:
   std::string toString();
 };
 
-/*
-class LexerToken{
-private:            
-  std::vector<LexerCharN> token;
-  int type;
-public:
-  LexerToken(std::vector<LexerCharN> tokens, int type = LEXER_CHAR_NORMAL);
-
-  void add(LexerCharN &character);
-
-  bool cmp(char* &str, int len);
-};
-
-
-class LexerRule
-{
-  private:
-  std::vector<LexerToken> rules;
-  public:
-
-  LexerRule(std::vector<LexerToken> token);
-
-  void or(LexerToken &token);
-
-  bool cmp(char* str, int len);
-};
-
 class Lexer
 {
   private:
-  std::vector<LexerRule> rules;
-  std::vector<LexerRule> out;
+  std::vector<std::pair<LexerCharN, char*>> rules;
+  std::vector<char*> out;
 
   char *input;
   int inputLen;
@@ -92,12 +65,10 @@ public:
   ~Lexer();
 
 
-  void addToken(LexerRule &token);
-  void lex(char* str, int len);
-
+  void addRule(LexerCharN &rule, char* tokenName);
+  void lexPrint(char* str);
+  std::vector<char*> lex(char* str);
 };
-
-*/
 
 
 

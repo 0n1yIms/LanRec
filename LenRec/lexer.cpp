@@ -25,6 +25,13 @@ void LexerChar::add(char c)
 {
   chars.push_back(c);
 }
+void LexerChar::add(char from, char to)
+{
+  for (int i = from; i <= to; i++)
+    chars.push_back((char)i);
+  continuous = false;
+}
+
 bool LexerChar::cmp(char c)
 {
   for (int i = 0; i < chars.size(); i++)
@@ -86,7 +93,6 @@ LexerCharN::LexerCharN(LexerToken token, int clausure)
 
 bool LexerCharN::cmp(char *&c, char *end)
 {
-  // LexerToken charsN = tokens[currentToken];
   if (lexchar.size() != 0)
   {
     bool eq = lexchar[0].cmp(*c);
@@ -94,27 +100,29 @@ bool LexerCharN::cmp(char *&c, char *end)
       c++;
     return eq;
   }
-  char *original = c;
-  vector<int> tokenDistance(tokens.size());
 
-  for (int tokenIdx = 0; tokenIdx < tokens.size(); tokenIdx++)
+  if (clausure == LEXER_CHAR_NORMAL)
   {
+    vector<char *> tokenDistance(tokens.size());
 
-    if (clausure == LEXER_CHAR_NORMAL)
+    for (int tokenIdx = 0; tokenIdx < tokens.size(); tokenIdx++)
     {
-      if (ptrdis(c, end) < tokens[tokenIdx].size()){
-        tokenDistance[tokenIdx] = -1;
+      LexerToken &charsN = tokens[tokenIdx];
+      char *cToken = c;
+
+      if (ptrdis(cToken, end) < charsN.size())
+      {
+        tokenDistance[tokenIdx] = nullptr;
         continue;
-        // return false;
       }
 
       bool eq = true; // compare(c, end);
-      for (int i = 0; i < tokens[tokenIdx].size(); i++)
+      for (int i = 0; i < charsN.size(); i++)
       {
-        LexerCharN &character = tokens[tokenIdx].at(i);
-        cout << character.toString() << endl;
+        LexerCharN &character = charsN.at(i);
+        // cout << character.toString() << endl;
 
-        if (!character.cmp(c, end))
+        if (!character.cmp(cToken, end))
         {
           eq = false;
           break;
@@ -122,79 +130,143 @@ bool LexerCharN::cmp(char *&c, char *end)
       }
 
       if (eq)
+        tokenDistance[tokenIdx] = cToken;
+      else
+        tokenDistance[tokenIdx] = nullptr;
+    }
+    int max = 0;
+    int id = -1;
+    for (int i = tokenDistance.size() - 1; i >= 0; i--)
+    {
+      if (tokenDistance[i] != nullptr)
       {
-        // c += charsN.size();
-        tokenDistance[tokenIdx] = ptrdis(c, original);
-        continue;
-        // return true;
-      }
-      else{
-        tokenDistance[tokenIdx] = -1;
-        continue;
-        // return false;
+        int dis = ptrdis(c, tokenDistance[i]);
+        if (dis >= max)
+        {
+          max = dis;
+          id = i;
+        }
       }
     }
-    else if (clausure == LEXER_CHAR_PLUS)
+    if (id != -1)
     {
-      int equals = 0;
-      while (ptrdis(c, end) > tokens[tokenIdx].size())
-      {
-        bool eq = true; // compare(c, end);
-        for (int i = 0; i < tokens[tokenIdx].size(); i++)
-        {
-          LexerCharN &character = tokens[tokenIdx].at(i);
-          cout << character.toString() << endl;
+      c = tokenDistance[id];
+      return true;
+    }
+    else
+      return false;
+  }
+  else if (clausure == LEXER_CHAR_PLUS)
+  {
+    vector<char *> tokenDistance(tokens.size());
 
-          if (!character.cmp(c, end))
+    for (int tokenIdx = 0; tokenIdx < tokens.size(); tokenIdx++)
+    {
+      LexerToken &charsN = tokens[tokenIdx];
+      char *cToken = c;
+
+      int equals = 0;
+      while (ptrdis(c, end) > charsN.size())
+      {
+        bool eq = true;
+        for (int i = 0; i < charsN.size(); i++)
+        {
+          LexerCharN &character = charsN.at(i);
+          // cout << character.toString() << endl;
+
+          if (!character.cmp(cToken, end))
           {
             eq = false;
             break;
           }
         }
         if (eq)
-        {
           equals++;
-          // c += charsN.size();
-        }
         else
           break;
       }
       if (equals > 0)
-        return true;
+        tokenDistance[tokenIdx] = cToken;
       else
-        return false;
+        tokenDistance[tokenIdx] = nullptr;
+    }
+    int max = 0;
+    int id = -1;
+    for (int i = tokenDistance.size() - 1; i >= 0; i--)
+    {
+      if (tokenDistance[i] != nullptr)
+      {
+        int dis = ptrdis(c, tokenDistance[i]);
+        if (dis >= max)
+        {
+          max = dis;
+          id = i;
+        }
+      }
+    }
+    if (id != -1)
+    {
+      c = tokenDistance[id];
+      return true;
     }
     else
+      return false;
+  }
+  else
+  {
+    vector<char *> tokenDistance(tokens.size());
+
+    for (int tokenIdx = 0; tokenIdx < tokens.size(); tokenIdx++)
     {
+      LexerToken &charsN = tokens[tokenIdx];
+      char *cToken = c;
+
       int equals = 0;
-
-      while (ptrdis(c, end) > tokens[tokenIdx].size())
+      while (ptrdis(c, end) > charsN.size())
       {
-        bool eq = true; // compare(c, end);
-        for (int i = 0; i < tokens[tokenIdx].size(); i++)
+        bool eq = true;
+        for (int i = 0; i < charsN.size(); i++)
         {
-          LexerCharN &character = tokens[tokenIdx].at(i);
-          cout << character.toString() << endl;
+          LexerCharN &character = charsN.at(i);
+          // cout << character.toString() << endl;
 
-          if (!character.cmp(c, end))
+          if (!character.cmp(cToken, end))
           {
             eq = false;
             break;
           }
         }
         if (eq)
-        {
           equals++;
-          // c += charsN.size();
-        }
         else
           break;
       }
       if (equals >= 0)
-        return true;
+        tokenDistance[tokenIdx] = cToken;
       else
-        return false;
+        tokenDistance[tokenIdx] = nullptr;
     }
+    int max = 0;
+    int id = -1;
+    for (int i = tokenDistance.size() - 1; i >= 0; i--)
+    {
+      if (tokenDistance[i] != nullptr)
+      {
+        int dis = ptrdis(c, tokenDistance[i]);
+        if (dis >= max)
+        {
+          max = dis;
+          id = i;
+        }
+      }
+    }
+    if (id != -1)
+    {
+      c = tokenDistance[id];
+      return true;
+    }
+    else
+      return false;
   }
 }
 string LexerCharN::toString()
@@ -225,53 +297,101 @@ void LexerCharN:: or (LexerToken token)
   this->tokens.push_back(token);
 }
 
-/*
-// lexer token
-LexerToken::LexerToken(vector<LexerCharN> tokens, int clausure)
-{
-  this->token = tokens;
-}
-void LexerToken::add(LexerCharN &character)
-{
-  token.push_back(character);
-}
-bool LexerToken::cmp(char *&str, int len)
-{
-  char *cfinal = str + len;
-  for (int i = 0; i < token.size(); i++)
-  {
-    LexerCharN &character = token.at(i);
-    cout << "token: " << character.toString() << endl;
-    if (!character.cmp(str, cfinal))
-      return false;
-  }
-  return true;
-}
-
-// lexer rules
-LexerRule::LexerRule(vector<LexerToken> tokens)
-{
-  // this->tokens = tokens;
-  // this->type = type;
-}
-
 Lexer::Lexer()
 {
 }
-
 Lexer::~Lexer()
 {
 }
-
-void Lexer::addToken(LexerRule &rule)
+void Lexer::addRule(LexerCharN &rule, char *tokenName)
 {
-  rules.push_back(rule);
+  rules.push_back({rule, tokenName});
 }
 
-void Lexer::lex(char *str, int len)
+void Lexer::lexPrint(char *c)
 {
-  input = str;
-  inputLen = len;
-  idx = 0;
+  int len = strlen(c);
+  char *end = c + len;
+
+  while (c != end)
+  {
+    vector<char *> tokenDistance(rules.size());
+    for (int i = 0; i < rules.size(); i++)
+    {
+      LexerCharN &rule = rules[i].first;
+      char *tokenName = rules[i].second;
+
+      char *cToken = c;
+      if (!rule.cmp(cToken, end))
+        tokenDistance[i] = nullptr;
+      else
+        tokenDistance[i] = cToken;
+    }
+    int max = 0;
+    int id = -1;
+    for (int i = tokenDistance.size() - 1; i >= 0; i--)
+    {
+      if (tokenDistance[i] != nullptr)
+      {
+        int dis = ptrdis(c, tokenDistance[i]);
+        if (dis >= max)
+        {
+          max = dis;
+          id = i;
+        }
+      }
+    }
+    if (id != -1)
+    {
+      c = tokenDistance[id];
+      cout << rules[id].second << endl;
+    }
+    else 
+      break;
+  }
 }
-*/
+
+vector<char*> Lexer::lex(char *c)
+{
+  vector<char*> tokens;
+  int len = strlen(c);
+  char *end = c + len;
+
+  while (c != end)
+  {
+    vector<char *> tokenDistance(rules.size());
+    for (int i = 0; i < rules.size(); i++)
+    {
+      LexerCharN &rule = rules[i].first;
+      char *tokenName = rules[i].second;
+
+      char *cToken = c;
+      if (!rule.cmp(cToken, end))
+        tokenDistance[i] = nullptr;
+      else
+        tokenDistance[i] = cToken;
+    }
+    int max = 0;
+    int id = -1;
+    for (int i = tokenDistance.size() - 1; i >= 0; i--)
+    {
+      if (tokenDistance[i] != nullptr)
+      {
+        int dis = ptrdis(c, tokenDistance[i]);
+        if (dis >= max)
+        {
+          max = dis;
+          id = i;
+        }
+      }
+    }
+    if (id != -1)
+    {
+      c = tokenDistance[id];
+      tokens.push_back(rules[id].second);
+    }
+    else 
+      break;
+  }
+  return tokens;
+}
