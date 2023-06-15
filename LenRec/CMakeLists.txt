@@ -4,6 +4,10 @@ project(LenRec)
 # message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_library(lenRec STATIC 
+
+              ${CMAKE_CURRENT_SOURCE_DIR}/grammar.h
+              ${CMAKE_CURRENT_SOURCE_DIR}/grammar.cpp
+              ${CMAKE_CURRENT_SOURCE_DIR}/grammarToAutomaton.h
               ${CMAKE_CURRENT_SOURCE_DIR}/automatonPushDown.h
               ${CMAKE_CURRENT_SOURCE_DIR}/automatonPushDown.cpp
               ${CMAKE_CURRENT_SOURCE_DIR}/lexer.h

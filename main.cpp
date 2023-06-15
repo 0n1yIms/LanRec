@@ -1,14 +1,17 @@
 #include <iostream>
 #include <lexer.h>
 #include <vector>
-#include <automatonPushDown.h>
 #include <iomanip>
+#include <automatonPushDown.h>
+#include <grammar.h>
+#include <grammarToAutomaton.h>
 
 using namespace std;
 
 #define newfun(...) ("" #__VA_ARGS__ "")
 
-int main(){
+int main()
+{
 
   char *code = newfun(<buffer<int> in, buffer<float> out> {
     out[0] = in[0] + in[1];
@@ -17,12 +20,12 @@ int main(){
   cout << code << endl;
 
   char *allTerms = newfun(
-    void f;
-    int a;
-    float b;
-    bool c;
-    char d;
-    b = a + 1;
+      void f;
+      int a;
+      float b;
+      bool c;
+      char d;
+      b = a + 1;
 
   );
 
@@ -73,13 +76,11 @@ int main(){
 
   );
 
-  
-
-  LexerCharN void_R({ {'v'}, {'o'}, {'i'}, {'d'} });
-  LexerCharN int_R({ {'i'}, {'n'}, {'t'} });
-  LexerCharN float_R({ {'f'}, {'l'}, {'o'}, {'a'}, {'t'} });
-  LexerCharN bool_R({ {'b'}, {'o'}, {'o'}, {'l'} });
-  LexerCharN char_R({ {'c'}, {'h'}, {'a'}, {'r'} });
+  LexerCharN void_R({{'v'}, {'o'}, {'i'}, {'d'}});
+  LexerCharN int_R({{'i'}, {'n'}, {'t'}});
+  LexerCharN float_R({{'f'}, {'l'}, {'o'}, {'a'}, {'t'}});
+  LexerCharN bool_R({{'b'}, {'o'}, {'o'}, {'l'}});
+  LexerCharN char_R({{'c'}, {'h'}, {'a'}, {'r'}});
 
   LexerChar name_C('a', 'z');
   name_C.add('A', 'Z');
@@ -119,17 +120,15 @@ int main(){
   LexerCharN slash_R(LexerChar('/'));
   LexerCharN space_R(LexerChar(' '));
 
-  LexerCharN if_R(vector<LexerCharN>{ {'i'}, {'f'} });
-  LexerCharN else_R({ {'e'}, {'l'}, {'s'}, {'e'} });
-  LexerCharN while_R({ {'w'}, {'h'}, {'i'}, {'l'}, {'e'} });
-  LexerCharN for_R({ {'f'}, {'o'}, {'r'} });
-  LexerCharN return_R({ {'r'}, {'e'}, {'t'}, {'u'}, {'r'}, {'n'} });
-  LexerCharN break_R({ {'b'}, {'r'}, {'e'}, {'a'}, {'k'} });
-  LexerCharN continue_R({ {'c'}, {'o'}, {'n'}, {'t'}, {'i'}, {'n'}, {'u'}, {'e'} });
-  LexerCharN true_R({ {'t'}, {'r'}, {'u'}, {'e'} });
-  LexerCharN false_R({ {'f'}, {'a'}, {'l'}, {'s'}, {'e'} });
-
-
+  LexerCharN if_R(vector<LexerCharN>{{'i'}, {'f'}});
+  LexerCharN else_R({{'e'}, {'l'}, {'s'}, {'e'}});
+  LexerCharN while_R({{'w'}, {'h'}, {'i'}, {'l'}, {'e'}});
+  LexerCharN for_R({{'f'}, {'o'}, {'r'}});
+  LexerCharN return_R({{'r'}, {'e'}, {'t'}, {'u'}, {'r'}, {'n'}});
+  LexerCharN break_R({{'b'}, {'r'}, {'e'}, {'a'}, {'k'}});
+  LexerCharN continue_R({{'c'}, {'o'}, {'n'}, {'t'}, {'i'}, {'n'}, {'u'}, {'e'}});
+  LexerCharN true_R({{'t'}, {'r'}, {'u'}, {'e'}});
+  LexerCharN false_R({{'f'}, {'a'}, {'l'}, {'s'}, {'e'}});
 
   Lexer lexer;
   lexer.addRule(if_R, "if");
@@ -177,39 +176,32 @@ int main(){
   lexer.addRule(slash_R, "slash");
   lexer.addRule(space_R, "space");
 
-  
-
   char *text = newfun(
-    void main(){
-      int a;
-      float b = 0;
-      if((float)a == b){
-        return true;
-      }
-      else{
-        return false;
-      }
-    }
-  );
+      void main() {
+        int a;
+        float b = 0;
+        if ((float)a == b)
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+      });
 
   cout << "text: " << text << "\n\n";
   lexer.lexPrint(text);
-  
-
-
-
-  
 
   // Alphabet alp = newAlphabet(a, b, c, d);
   // Alphabet NoTerminals = newAlphabet(S, A, B, C, D);
   // Rules rules = newRules(
-    // A -> aAa,
-    // B -> bBc,
-    // S -> AB
+  // A -> aAa,
+  // B -> bBc,
+  // S -> AB
   // );
 
   // Grammar grammar = newGrammar(alp, NoTerminals, rules, S);
-
 
   // w1 = abbbccca;
   // w2 = aabbbccc;
@@ -229,49 +221,95 @@ int main(){
   // B -> a;
   // B -> b + B + c;
   // S -> A + B;
-
-
-  AutomatonPD aut;
-
-  State q0 = aut.addState();
-  State q1 = aut.addState();
-  State q2 = aut.addState();
-
-  SigmaT a = aut.addSigmaTerminal();
-  SigmaT b = aut.addSigmaTerminal();
-  SigmaT c = aut.addSigmaTerminal();
-
-  SigmaN A = aut.addSigmaNoTerminal();
-  SigmaN B = aut.addSigmaNoTerminal();
-  SigmaN S = aut.addSigmaNoTerminal();
-
-  //        (entrada, pila, salida)
-  // q0, q1  (q0, a, A, aA)
-
-  aut.addTransitions(
+  if(false)
   {
-    {q0, q1, a, A, {a, A}},
-    {q0, q0, _epsilon, A, {_epsilon}}
-    
-  });
 
+    AutomatonPD aut;
 
+    State q0("q0");
+    State q1("q1");
+    State q2("q2");
+
+    Alphabet a("a");
+    Alphabet b("b");
+    Alphabet c("c");
+
+    Alphabet Z0("Z0");
+    Alphabet A("A");
+    Alphabet B("B");
+    Alphabet S("S");
+
+    aut.addState(q0);
+    aut.addState(q1);
+    aut.addFinalState(q2);
+
+    aut.addStackAlphabet(S);
+    aut.addInputAlphabet(a);
+    aut.addInputAlphabet(b);
+    aut.addInputAlphabet(c);
+
+    aut.addStackAlphabet(Z0);
+    aut.addStackAlphabet(A);
+    aut.addStackAlphabet(B);
+
+    aut.addTransitions(
+        {
+            {q0, q0, a, Z0, {a, Z0}},
+            {q0, q0, a, a, {a, a}},
+            {q0, q1, _eps, a, {a}},
+            {q1, q1, b, a, {_eps}},
+            {q1, q2, _eps, Z0, {_eps}},
+        });
+
+    Word w{a, a, b, b};
+    bool r = aut.run(q0, Z0, w);
+
+    cout << r << endl;
+  }
+
+  Symbol parenO("(");
+  Symbol parenC(")");
+  Symbol sqParO("[");
+  Symbol sqParC("]");
+  Symbol Sa("S");
+  Rule r1{Sa, {parenO, Sa, parenC}};
+  Rule r2{Sa, {sqParO, Sa, sqParC}};
+  Rule r3{Sa, {Sa, Sa}};
+  Rule r4{Sa, {gEps}};
+
+  Grammar grammar(
+      {parenO, parenC, sqParO, sqParC},
+      {Sa},
+      Sa,
+      {r1, r2, r3, r4});
+
+  AutomatonPD autom = grammarToAutomaton(grammar);
+  Alphabet pO{"("};
+  Alphabet pC{")"};
+  Alphabet sqPO{"["};
+  Alphabet sqPC{"]"};
+
+  bool runa = autom.run({"S"}, {"Z0"}, {pO, pO, pC, pC, sqPO, sqPC});
+
+  cout << "run grammar: " << runa << endl;
+
+  // S -> (S)
+  // S -> [S]
+  // S -> SS
+  // S -> _eps
 
   // S.run("aabbbccc");
   // //find A, find B
 
   // A.run("aabbbccc");
 
-
   // LexerCharN dataType_R({void_R});
   // dataType_R.or({int_R});
   // dataType_R.or({float_R});
   // dataType_R.or({bool_R});
 
-
   // LexerCharN space_R({{' '}}, LEXER_CHAR_CLAIN);
   // LexerCharN decl_R({space_R, dataType_R, space_R, name_R, space_R, {';'}}, LEXER_CHAR_CLAIN);
-
 
   // LexerCharN mundos({{'o'}});
 
@@ -283,12 +321,10 @@ int main(){
   // LexerToken token1({chars1, chars3});
   // eq = token1.cmp(str, strlen(str));
   // cout << "equals: " << eq << endl;
-  
+
   // LexerRule rule(LexerToken('a', 'z'));
 
   // cout << rule.cmp("abc", 3) << endl;
-
-
 
   return 0;
 }
