@@ -2,9 +2,8 @@
 #include <lexer.h>
 #include <vector>
 #include <iomanip>
-#include <automatonPushDown.h>
-#include <grammar.h>
-#include <grammarToAutomaton.h>
+#include <Convert/grammarToAutomaton.h>
+#include <Grammar/grammar.h>
 
 using namespace std;
 
@@ -396,86 +395,112 @@ void testCLang(){
       });
 
   cout << "text: " << text << "\n\n";
-  vector<Token> tokens = lexer.lexPrint(text);
+  vector<Token> tokens = lexer.lex(text);
   
-  Grammar grammar;
 
   newfun(
-    Expr1 -> name | number | numberF;
-    Expr1 -> (Expr);
-    Expr1 -> name * Expr1 | number * Expr1 | numberF * Expr1;
-    Expr1 -> name / Expr1 | number / Expr1 | numberF / Expr1;
-    Expr2 -> Expr1;
-    Expr2 -> Expr2 + Expr1 | Expr2 - Expr1;
-    Expr3 -> Expr2;
-    Expr3 -> Expr3 > Expr2 | Expr3 < Expr2 | Expr3 >= Expr2 | Expr3 <= Expr2;
-    Expr4 -> Expr3;
-    Expr4 -> Expr4 == Expr3 | Expr4 != Expr3;
-    Expr5 -> Expr4;
-    Expr5 -> Expr5 && Expr4;
-    Expr6 -> Expr5;
-    Expr6 -> Expr6 || Expr5;
-    Expr7 -> Expr6;
-    Expr7 -> !Expr7;
-    Expr8 -> Expr7;
-    Expr8 -> Expr8 ? Expr8 : Expr8;
-    Expr9 -> Expr8;
-    Expr9 -> Expr9[Expr9];
-    Expr10 -> Expr9;
-    Expr10 -> Expr10(Expr10);
-    Expr11 -> Expr10;
-    Expr11 -> Expr11 = Expr11;
-    Expr12 -> Expr11;
-    Expr12 -> Expr12++ | Expr12--;
-    Expr13 -> ++Expr12 | --Expr12;
-    Expr -> Expr13;
-    Expr -> true | false;
-    Expr -> Expr;
-    Expr -> name(Expr) | name(Expr, Expr) | name(Expr, Expr, Expr) | name(Expr, Expr, Expr, Expr);
-    Expr -> Expr;
-    Expr -> Expr;
+    identifier -> name | name[ExprN]
+    type -> int | float | bool | char | void
+
+    funcArgs -> __epsilon__ | Expr | Expr, funcArgs
+    funcCall -> name(funcArgs)
     
+    //header 
+    headerArgs -> __epsilon__ | type name | type name, headerArgs
+    header -> < Args >
+    Root -> header { StmtList }
 
+    //Stmt
+    StmtList -> Stmt StmtList | Stmt
+    Stmt -> ExprStmt | 
+            DeclStmt |
+            AssignStmt | 
+            RetStmt |
+            IfStmt |
+            WhileStmt |
+            ForStmt |
+            { StmtList }
 
+    ExprStmt -> Expr
+    DeclStmt -> type name = Expr; | type name;
+    AssignStmt -> identifier = Expr;
+    RetStmt -> return Expr; | return;
+    IfStmt -> if(Expr) Stmt else Stmt
+    WhileStmt -> while(Expr) Stmt
+    ForStmt -> for(Expr; Expr; Expr) Stmt
 
+    //Expr
+    Expr -> ExprN | ExprB
 
-    Expr -> Expr + Expr
-    Expr -> Expr - Expr
-    Expr -> Expr * Expr
-    Expr -> Expr / Expr
-    Expr -> Expr % Expr
-    Expr -> Expr > Expr
-    Expr -> Expr < Expr
-    Expr -> Expr >= Expr
-    Expr -> Expr <= Expr
-    Expr -> Expr == Expr
-    Expr -> Expr != Expr
-    Expr -> Expr && Expr
-    Expr -> Expr || Expr
-    Expr -> !Expr
-    Expr -> (Expr)
-    Expr -> Expr ? Expr : Expr
-    Expr -> Expr[Expr]
-    Expr -> Expr(Expr)
-    Expr -> Expr = Expr
-    Expr -> Expr++
-    Expr -> Expr--
-    Expr -> ++Expr
-    Expr -> --Expr
-    Expr -> Expr
-    Expr -> true
-    Expr -> false
-    Expr -> number
-    Expr -> numberF
-    Expr -> name
-    Expr -> name(Expr)
-    Expr -> name(Expr, Expr)
-    Expr -> name(Expr, Expr, Expr)
-    Expr -> name(Expr, Expr, Expr, Expr)
+    nameNum0 -> identifier
+    nameNum1 -> nameNum0++ | nameNum0--
+    nameNum2 -> nameNum1 | ++nameNum1 | --nameNum1 | number | numberF
 
+    ExprN0 -> nameNum | (ExprN) | FuncCall
+    ExprN1 -> ExprN0 | ExprN0 * ExprN1 | ExprN0 / ExprN1 | ExprN0 % ExprN1
+    ExprN -> ExprN1 | ExprN1 + ExprN | ExprN1 - ExprN
+
+    ExprB1 -> ExprN
+    ExprB2 -> ExprB1 | ExprB1 > ExprB2 | ExprB1 < ExprB2 | ExprB1 >= ExprB2 | ExprB1 <= ExprB2
+    ExprB3 -> ExprB2 | !ExprB2 | true | false | ExprB2 == ExprB3 | ExprB2 != ExprB3
+    ExprB4 -> ExprB3 | ExprB3 && ExprB4 | ExprB3 || ExprB4
   );
 
   Rule r1{{"S"}, {'(', "S", ')'}};
+
+  Symbol identifierRS("identifier");
+  Symbol nameS("name");
+  Symbol typeS("type");
+  Symbol funcArgsS("funcArgs");
+
+
+  Rule identifierR(identifierRS, {{name}});
+  identifier -> name | name[ExprN]
+    type -> int | float | bool | char | void
+
+    funcArgs -> __epsilon__ | Expr | Expr, funcArgs
+    funcCall -> name(funcArgs)
+    
+    //header 
+    headerArgs -> __epsilon__ | type name | type name, headerArgs
+    header -> < Args >
+    Root -> header { StmtList }
+
+    //Stmt
+    StmtList -> Stmt StmtList | Stmt
+    Stmt -> ExprStmt | 
+            DeclStmt |
+            AssignStmt | 
+            RetStmt |
+            IfStmt |
+            WhileStmt |
+            ForStmt |
+            { StmtList }
+
+    ExprStmt -> Expr
+    DeclStmt -> type name = Expr; | type name;
+    AssignStmt -> identifier = Expr;
+    RetStmt -> return Expr; | return;
+    IfStmt -> if(Expr) Stmt else Stmt
+    WhileStmt -> while(Expr) Stmt
+    ForStmt -> for(Expr; Expr; Expr) Stmt
+
+    //Expr
+    Expr -> ExprN | ExprB
+
+    nameNum0 -> identifier
+    nameNum1 -> nameNum0++ | nameNum0--
+    nameNum2 -> nameNum1 | ++nameNum1 | --nameNum1 | number | numberF
+
+    ExprN0 -> nameNum | (ExprN) | FuncCall
+    ExprN1 -> ExprN0 | ExprN0 * ExprN1 | ExprN0 / ExprN1 | ExprN0 % ExprN1
+    ExprN -> ExprN1 | ExprN1 + ExprN | ExprN1 - ExprN
+
+    ExprB1 -> ExprN
+    ExprB2 -> ExprB1 | ExprB1 > ExprB2 | ExprB1 < ExprB2 | ExprB1 >= ExprB2 | ExprB1 <= ExprB2
+    ExprB3 -> ExprB2 | !ExprB2 | true | false | ExprB2 == ExprB3 | ExprB2 != ExprB3
+    ExprB4 -> ExprB3 | ExprB3 && ExprB4 | ExprB3 || ExprB4
+  
 
 
 

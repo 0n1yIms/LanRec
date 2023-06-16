@@ -1,5 +1,5 @@
-#include "grammar.h"
-#include "automatonPushDown.h"
+#include <Grammar/grammar.h>
+#include <AutomatonPD/automatonPushDown.h>
 
 #include <vector>
 
