@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.6.0)
-project(LenRec)
+project(LanRec)
 
 
 
 
-add_subdirectory(LenRec)
+add_subdirectory(LanRec)
 
 
 add_executable(main main.cpp)
 
-target_link_libraries(main lenRec)
+target_link_libraries(main lanRec)

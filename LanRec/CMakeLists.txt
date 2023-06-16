@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.6.0)
-project(LenRec)
+project(LanRec)
 
 # message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_library(lenRec STATIC 
+add_library(lanRec STATIC 
 
               ${CMAKE_CURRENT_SOURCE_DIR}/grammar.h
               ${CMAKE_CURRENT_SOURCE_DIR}/grammar.cpp
@@ -13,5 +13,5 @@ add_library(lenRec STATIC
               ${CMAKE_CURRENT_SOURCE_DIR}/lexer.h
               ${CMAKE_CURRENT_SOURCE_DIR}/lexer.cpp
               )
-# target_link_directories(lenRec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(lenRec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# target_link_directories(lanRec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(lanRec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
