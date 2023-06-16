@@ -1,34 +1,35 @@
 #include "grammar.h"
 #include "automatonPushDown.h"
 
-
+#include <vector>
 
 
 inline AutomatonPD grammarToAutomaton(Grammar g){
-  AutomatonPD a;
   State q0("q0");
   State q1("q1");
   State q2("q2");
-  a.addState(q0);
-  a.addState(q1);
-  a.addFinalState(q2);
-
+  
+  std::vector<Alphabet> inputAlphabet;
+  std::vector<Alphabet> stackAlphabet;
   for (Symbol t : g.terminals)
-    a.addInputAlphabet(t.name);
+    inputAlphabet.push_back({t.name});
   
   for (Symbol nt : g.noTerminals)
-    a.addStackAlphabet(nt.name);
+    stackAlphabet.push_back({nt.name});
 
   Alphabet Z0("Z0");
-  a.addStackAlphabet(Z0);
+  stackAlphabet.push_back(Z0);
 
   Alphabet init;
   init.name = g.start.name;
 
+
+  std::vector<Transition> transitions;
   Transition t0{q0, q1, _eps, Z0, {init, Z0}};
   Transition tF{q1, q2, _eps, Z0, {_eps}};
 
-  a.addTransitions({t0, tF});
+  transitions.push_back(t0);
+  transitions.push_back(tF);
 
   for (Rule r : g.rules){
     std::vector<Alphabet> stack;
@@ -40,13 +41,23 @@ inline AutomatonPD grammarToAutomaton(Grammar g){
     }
 
     Transition t{q1, q1, _eps, {r.left.name}, stack};
-    a.addTransitions({t});
+    transitions.push_back(t);
   }
 
   for (Symbol t : g.terminals){
     Transition tran{q1, q1, {t.name}, {t.name}, {_eps}};
-    a.addTransitions({tran});
+    transitions.push_back(tran);
   }
 
-  return a;
+  AutomatonPD automatonPD(
+    {q0, q1, q2},
+    inputAlphabet,
+    stackAlphabet,
+    transitions,
+    q0,
+    Z0,
+    {q2}
+  );
+
+  return automatonPD;
 }

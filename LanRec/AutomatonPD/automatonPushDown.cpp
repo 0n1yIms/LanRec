@@ -36,15 +36,38 @@ bool operator!=(Alphabet s1, Alphabet s2)
 }
 
 
-void AutomatonPD::addState(State q)
-{
-  states.push_back(q);
+
+AutomatonPD::AutomatonPD(std::vector<State> states, 
+              std::vector<Alphabet> inputAlphabet, 
+              std::vector<Alphabet> stackAlphabet, 
+              std::vector<Transition> transitions,
+              State initState,
+              Alphabet stackFirst,
+              std::vector<State> finalStates){
+  for(State s : states){
+    bool isFinalState = false;
+    for(State f : finalStates)
+      if(s == f)
+        isFinalState = true;
+    if(isFinalState)
+      this->finalStates.push_back(s);
+    else 
+      this->states.push_back(s);
+  }
+  this->inputAlphabet = inputAlphabet;
+  this->stackAlphabet = stackAlphabet;
+  for (Alphabet a : inputAlphabet)
+    this->stackAlphabet.push_back(a);
+
+  /// fix, compare if is in states  
+  this->transitions = transitions;
+  this->initState = initState;
+  this->stackFirst = stackFirst;
+  
+
 }
 
-void AutomatonPD::addFinalState(State q)
-{
-  finalStates.push_back(q);
-}
+
 
 bool AutomatonPD::isFinal(State s)
 {
@@ -56,25 +79,7 @@ bool AutomatonPD::isFinal(State s)
   return isFinalState;
 }
 
-void AutomatonPD::addInputAlphabet(Alphabet a)
-{
-  inputAlphabet.push_back(a);
-  stackAlphabet.push_back(a);
-}
 
-void AutomatonPD::addStackAlphabet(Alphabet a)
-{
-  stackAlphabet.push_back(a);
-}
-
-/// fix, compare if is in states
-void AutomatonPD::addTransitions(std::vector<Transition> transitions)
-{
-  for (Transition t : transitions)
-  {
-    this->transitions.push_back(t);
-  }
-}
 
 vector<Transition> AutomatonPD::getTransitions(State from, Alphabet input, Alphabet stack)
 {
@@ -129,7 +134,7 @@ bool AutomatonPD::testTransition(State q, Transition tr, Word w, vector<Alphabet
   return false;
 }
 
-bool AutomatonPD::run(State init, Alphabet stackFrst, Word w)
+bool AutomatonPD::run(Word w)
 {
   for(Alphabet a : w){
     if(a == _eps)
@@ -144,13 +149,13 @@ bool AutomatonPD::run(State init, Alphabet stackFrst, Word w)
   }
 
   vector<Alphabet> stack;
-  stack.push_back(stackFrst);
+  stack.push_back(stackFirst);
 
-  vector<Transition> transitions = getTransitions(init, w[0], stack.back());
+  vector<Transition> transitions = getTransitions(initState, w[0], stack.back());
 
   for (Transition tr : transitions)
   {
-    if (testTransition(init, tr, w, stack))
+    if (testTransition(initState, tr, w, stack))
       return true;
   }
   return false;

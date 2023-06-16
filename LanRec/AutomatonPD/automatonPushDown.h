@@ -45,21 +45,31 @@ private:
   std::vector<State> finalStates;
   std::vector<Alphabet> stackAlphabet;
   std::vector<Alphabet> inputAlphabet;
+  State initState;
+  Alphabet stackFirst;
 
   std::vector<Transition> getTransitions(State from, Alphabet input, Alphabet stack);
   bool testTransition(State q, Transition tr, Word w, std::vector<Alphabet> stack);
 
+  bool isFinal(State state);
 
 public:
-  bool isFinal(State state);
-  void addState(State q);
-  void addFinalState(State q);
-  void addStackAlphabet(Alphabet a);
-  void addInputAlphabet(Alphabet a);
-
-  void addTransitions(std::vector<Transition> transitions);
-
-  bool AutomatonPD::run(State init, Alphabet stackFrst, Word w);
+  /// @brief Construct a new AutomatonPD object
+  /// @param states 
+  /// @param inputAlphabet 
+  /// @param stackAlphabet 
+  /// @param transitions 
+  /// @param initState 
+  /// @param stackFirst 
+  /// @param finalStates 
+  AutomatonPD(std::vector<State> states, 
+              std::vector<Alphabet> inputAlphabet, 
+              std::vector<Alphabet> stackAlphabet, 
+              std::vector<Transition> transitions,
+              State initState,
+              Alphabet stackFirst,
+              std::vector<State> finalStates);
+  bool AutomatonPD::run(Word w);
 
 };
 
