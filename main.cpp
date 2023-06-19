@@ -670,8 +670,8 @@ int main()
 
     grammar.setStart(S);
 
-    bool der = derive(grammar, {parenO, S, parenC, sqParO, S, sqParC});
-    cout << "derivation: " << der << endl;
+    // bool der = derive(grammar, {parenO, S, parenC, sqParO, S, sqParC});
+    // cout << "derivation: " << der << endl;
   }
   
   if(true)
@@ -705,8 +705,14 @@ int main()
 
     grammar.setStart(S);
 
-    bool der = derive(grammar, {a, b, b, b, c, _s, a, a});
-    cout << "derivation: " << der << endl;
+    vector<RuleNode> derivations;
+    derive(grammar, {a, b, b, b, c, _s, a, a}, derivations);
+
+    for (RuleNode &rn : derivations)
+    {
+      printRuleNode(rn);
+    }
+    
   }
   
   // AutomatonPD autom = grammarToAutomaton(grammar);

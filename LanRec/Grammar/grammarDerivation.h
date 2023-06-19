@@ -6,7 +6,17 @@
 #include "grammarTree.h"
 #include <vector>
 
-bool derive(Grammar grammar, Word input);
+
+struct RuleNode
+{
+  Symbol *simbol = nullptr;
+  Rule *rule = nullptr;
+  std::vector<RuleNode> nodes;
+};
+
+void printRuleNode(RuleNode &ruleNode);
+
+void derive(Grammar g, Word w, std::vector<RuleNode> &result);
 
 
 
