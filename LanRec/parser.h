@@ -3,7 +3,6 @@
 
 #include "Grammar\grammar.h"
 
-Alphabet*
 
 
 

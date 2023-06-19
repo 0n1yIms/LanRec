@@ -1,7 +1,9 @@
-#include <Grammar/grammar.h>
+// #include <Grammar/grammar.h>
 #include <AutomatonPD/automatonPushDown.h>
 
 #include <vector>
+
+
 
 
 inline AutomatonPD grammarToAutomaton(Grammar g){

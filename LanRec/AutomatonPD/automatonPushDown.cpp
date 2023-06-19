@@ -95,7 +95,7 @@ vector<Transition> AutomatonPD::getTransitions(State from, Alphabet input, Alpha
   return result;
 }
 
-bool AutomatonPD::testTransition(State q, Transition tr, Word w, vector<Alphabet> stack)
+bool AutomatonPD::testTransition(State q, Transition tr, AWord w, vector<Alphabet> stack)
 {
   if (q == tr.from && tr.stack == stack.back())
   {
@@ -134,15 +134,16 @@ bool AutomatonPD::testTransition(State q, Transition tr, Word w, vector<Alphabet
   return false;
 }
 
-bool AutomatonPD::run(Word w)
+
+bool AutomatonPD::run(AWord w)
 {
   for(Alphabet a : w){
     if(a == _eps)
       return false;
-    bool isInputAlphabet = false;
-    for (Alphabet b : inputAlphabet)
+    bool isInputAlphabet = true;
+    for (Alphabet b : stackAlphabet)
       if (a == b)
-        return true;
+        isInputAlphabet = false;
 
     if (!isInputAlphabet)
       return false;
@@ -160,25 +161,14 @@ bool AutomatonPD::run(Word w)
   }
   return false;
 
-  // if(currentState == 1 && stack.back() == _epsilon){
-  // std::cout << "Cadena aceptada" << std::endl;
-  // }else{
-  // std::cout << "Cadena no aceptada" << std::endl;
-  // }
 }
 
 
-/*
-Word getWord(char *w){
-  Word word;
-  for(int i = 0; i < strlen(w); i++){
-    string s(1, w[i]);
-    new char[]
-    Alphabet a{};
-    word.push_back(a);
-  }
-  return word;
-}
-*/
+
+
+
+
+
+
 
 

@@ -2,6 +2,7 @@
 #define AUTOMATONPUSHDOWN_H
 
 #include <vector>
+#include <Grammar/grammar.h>
 
 #define _eps (Alphabet{"__epsilon__"})
 
@@ -10,6 +11,7 @@ struct Alphabet;
 struct Transition;
 class AutomatonPD;
 
+typedef std::vector<Alphabet> AWord;
 
 
 struct State
@@ -34,7 +36,6 @@ struct Transition {
   std::vector<Alphabet> out;
 };
 
-typedef std::vector<Alphabet> Word;
 
 class AutomatonPD
 {
@@ -49,19 +50,11 @@ private:
   Alphabet stackFirst;
 
   std::vector<Transition> getTransitions(State from, Alphabet input, Alphabet stack);
-  bool testTransition(State q, Transition tr, Word w, std::vector<Alphabet> stack);
+  bool testTransition(State q, Transition tr, AWord w, std::vector<Alphabet> stack);
 
   bool isFinal(State state);
 
 public:
-  /// @brief Construct a new AutomatonPD object
-  /// @param states 
-  /// @param inputAlphabet 
-  /// @param stackAlphabet 
-  /// @param transitions 
-  /// @param initState 
-  /// @param stackFirst 
-  /// @param finalStates 
   AutomatonPD(std::vector<State> states, 
               std::vector<Alphabet> inputAlphabet, 
               std::vector<Alphabet> stackAlphabet, 
@@ -69,8 +62,8 @@ public:
               State initState,
               Alphabet stackFirst,
               std::vector<State> finalStates);
-  bool AutomatonPD::run(Word w);
-
+  bool AutomatonPD::run(AWord w);
+  
 };
 
 

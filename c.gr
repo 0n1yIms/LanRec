@@ -1,0 +1,90 @@
+tokens
+
+
+
+
+grammar
+Identifier -> name
+            | name[ExprN] 
+
+Type -> int 
+      | float 
+      | bool 
+      | char 
+      | void
+
+FuncArgs -> __epsilon__
+          | Expr 
+          | Expr, funcArgs
+FuncCall -> name(funcArgs)
+
+HeaderArgs -> __epsilon__ 
+            | Type name 
+            | Type name, HeaderArgs
+
+Header -> <HeaderArgs>
+Root -> Header { StmtList }
+
+StmtList -> Stmt StmtList | Stmt
+
+Stmt -> ExprStmt
+      | DeclStmt
+      | AssignStmt
+      | RetStmt
+      | IfStmt
+      | WhileStmt
+      | ForStmt
+      | {StmtList}
+
+ExprStmt -> Expr
+
+DeclStmt -> Type name = Expr; | Type name;
+
+AssignStmt -> Identifier = Expr;
+
+RetStmt -> return Expr; | return;
+
+IfStmt -> if ( Expr ) Stmt else Stmt
+
+WhileStmt -> while (Expr) Stmt
+
+ForStmt -> for (Expr; Expr; Expr) Stmt
+
+Expr -> ExprN | ExprB
+
+NameNum1 -> identifier++
+          | identifier-- 
+NameNum -> NameNum1
+          | ++NameNum1
+          | --NameNum1 
+          | number 
+          | numberF
+
+ExprN0 -> NameNum 
+        | (ExprN) 
+        | FuncCall 
+ExprN1 -> ExprN0 
+        | ExprN0 * ExprN1 
+        | ExprN0 / ExprN1 
+        | ExprN0 % ExprN1 
+
+ExprN -> ExprN1 
+        | ExprN1 + ExprN 
+        | ExprN1 - ExprN
+
+ExprB1 -> ExprN 
+        | ExprN > ExprB1 
+        | ExprN < ExprB1 
+        | ExprN >= ExprB1 
+        | ExprN <= ExprB1 
+
+ExprB2 -> ExprB1 
+        | !ExprB1 
+        | true 
+        | false 
+        | ExprB1 == ExprB2 
+        | ExprB1 != ExprB2 
+ExprB -> ExprB2
+       | ExprB2 && ExprB 
+       | ExprB2 || ExprB
+

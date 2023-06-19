@@ -6,9 +6,11 @@
 
 #define gEps (Symbol{"__epsilon__"})
 
+
 struct Symbol;
 struct Rule;
 class Grammar;
+typedef std::vector<Symbol> Word;
 
 
 struct Symbol
@@ -33,11 +35,15 @@ public:
   std::vector<Symbol> noTerminals;
   std::vector<Rule> rules;
   Symbol start;
-  Grammar(std::vector<Symbol> terminals, std::vector<Symbol> noTerminals, Symbol s, std::vector<Rule> rules);
-  Symbol addTerminal(char* name);
-  Symbol addNoTerminal(char* name);
+  void addTerminal(Symbol s);
+  void addNoTerminal(Symbol s);
+  void setStart(Symbol s);
+
   void addRule(Rule rule);
   void addRules(std::vector<Rule> rules);
+
+  bool isTerminal(Symbol s);
+  bool isNoTerminal(Symbol s);
 };
 
 

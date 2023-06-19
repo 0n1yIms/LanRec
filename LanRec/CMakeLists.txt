@@ -7,6 +7,10 @@ add_library(lanRec STATIC
 
               ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/grammar.h
               ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/grammar.cpp
+              ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/grammarTree.h
+              ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/grammarTree.cpp
+              ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/grammarDerivation.h
+              ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/grammarDerivation.cpp
               ${CMAKE_CURRENT_SOURCE_DIR}/Convert/grammarToAutomaton.h
               ${CMAKE_CURRENT_SOURCE_DIR}/AutomatonPD/automatonPushDown.h
               ${CMAKE_CURRENT_SOURCE_DIR}/AutomatonPD/automatonPushDown.cpp
