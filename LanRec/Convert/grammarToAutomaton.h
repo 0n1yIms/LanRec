@@ -14,16 +14,16 @@ inline AutomatonPD grammarToAutomaton(Grammar g){
   std::vector<Alphabet> inputAlphabet;
   std::vector<Alphabet> stackAlphabet;
   for (Symbol t : g.terminals)
-    inputAlphabet.push_back({t.name});
+    inputAlphabet.push_back(Alphabet(t.getName()));
   
   for (Symbol nt : g.noTerminals)
-    stackAlphabet.push_back({nt.name});
+    stackAlphabet.push_back({nt.getName()});
 
   Alphabet Z0("Z0");
   stackAlphabet.push_back(Z0);
 
   Alphabet init;
-  init.name = g.start.name;
+  init.name = g.start.getName();
 
 
   std::vector<Transition> transitions;
@@ -39,15 +39,15 @@ inline AutomatonPD grammarToAutomaton(Grammar g){
       if(s == gEps)
         stack.push_back(_eps);
       else
-        stack.push_back({s.name});
+        stack.push_back({s.getName()});
     }
 
-    Transition t{q1, q1, _eps, {r.left.name}, stack};
+    Transition t{q1, q1, _eps, {r.left.getName()}, stack};
     transitions.push_back(t);
   }
 
   for (Symbol t : g.terminals){
-    Transition tran{q1, q1, {t.name}, {t.name}, {_eps}};
+    Transition tran{q1, q1, {t.getName()}, {t.getName()}, {_eps}};
     transitions.push_back(tran);
   }
 

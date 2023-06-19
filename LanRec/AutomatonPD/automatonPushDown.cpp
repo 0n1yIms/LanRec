@@ -1,4 +1,5 @@
 #include "automatonPushDown.h"
+#include <cstring>
 
 using namespace std;
 

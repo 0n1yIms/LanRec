@@ -62,8 +62,7 @@ public:
               State initState,
               Alphabet stackFirst,
               std::vector<State> finalStates);
-  bool AutomatonPD::run(AWord w);
-  
+  bool run(AWord w);
 };
 
 

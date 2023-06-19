@@ -1,18 +1,30 @@
 #include "Grammar.h"
+#include <cstring>
+
+
 
 Symbol::Symbol()
 {
-  name = nullptr;
+  name = "";
 }
 
 Symbol::Symbol(char *name)
 {
-  this->name = name;
+  this->name = name;  
 }
+
+
+Rule &Rule::operator=(Rule &r)
+{
+  left = r.left;
+  right = r.right;
+  return *this;
+}
+
 
 bool operator==(Symbol s1, Symbol s2)
 {
-  return strcmp(s1.name, s2.name) == 0;
+  return s1.name == s2.name;
 }
 
 bool operator!=(Symbol s1, Symbol s2)

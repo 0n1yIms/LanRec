@@ -8,8 +8,18 @@ using namespace std;
 struct RuleNode
 {
   Symbol *simbol = nullptr;
+  Rule *rule = nullptr;
   vector<RuleNode> nodes;
+  RuleNode copy(){
+    RuleNode rn;
+    rn.simbol = simbol;
+    rn.rule = rule;
+    for(RuleNode &n : nodes)
+      rn.nodes.push_back(n.copy());
+    return rn;
+  }
 };
+
 
 struct RuleRunner
 {
@@ -32,70 +42,140 @@ struct RuleRunner
 typedef vector<RuleRunner> RuleStack;
 typedef pair<RuleStack, Word> RuleDerivation;
 
-bool makeDerivation(RuleDerivation &rd)
+void printStack(RuleStack &rs, Word &w, int i)
 {
-  RuleStack &rs = rd.first;
-  Word &w = rd.second;
-  
-  if (rs.size() == 1)   //finished rule 
-  {
-    if (rs.back().finish())
-      // acepted
-      return true;
-  }
-  RuleRunner &rr = rs.back();
-  
-  if (rr.finish())
-  {
-    rs.pop_back();
-    if (rs.size() != 0)
-      rs.back().next();
-    continue;
-  }
-  if (w.size() == 0)
-  {
-    return false;
-  }
+  cout << "  derivation(" << setw(2) << i << "): ";
 
-  Symbol &s = rr.rule.right.at(rr.index);
+  for (Symbol &s : w)
+    cout << s.name << " ";
+  cout << endl;
 
-  if (g.isTerminal(s))
+  cout << "    stack:\n";
+  for (RuleRunner &rr : rs)
   {
-    if (w.at(0) == s)
+    cout << setw(16) << rr.rule.left.name << " -> ";
+    for (Symbol &s : rr.rule.right)
     {
-      w.erase(w.begin());
-      rr.next();
-      rr.node.nodes.push_back(RuleNode{&s, {}});
-      continue;
+      cout << s.name << " ";
     }
+    cout << " |\n";
+  }
+  cout << endl;
+}
+
+void printDerivations(vector<RuleDerivation> &currentDerivations)
+{
+  cout << "derivations:\n";
+  for (int i = 0; i < currentDerivations.size(); i++)
+  {
+    printStack(currentDerivations.at(i).first, currentDerivations.at(i).second, i);
+  }
+}
+
+
+void printRuleNode(RuleNode &rn, int space = 0, bool first = true)
+{
+  if (rn.simbol != nullptr)
+  {
+    if (!first)
+      cout << setw(space) << rn.simbol->name << endl;
     else
-    {
-      crtRules.erase(crtRules.begin() + i);
-      continue;
-    }
+      cout << rn.simbol->name << endl;
+      
   }
   else
   {
+    if(first)
+      cout << rn.rule->left.name << " -> ";
+    else
+      cout << setw(space) << rn.rule->left.name << " -> ";
+
+    space += rn.rule->left.name.size() + 5;
+    for (int i = 0; i < rn.nodes.size(); i++)
+    {
+      RuleNode &rnode = rn.nodes.at(i);
+      if(i == 0)
+        printRuleNode(rnode, space, true);
+      else
+        printRuleNode(rnode, space, false);
+      
+    }
+    space -= rn.rule->left.name.size() + 5;
+  }
+}
+
+bool makeDerivation(vector<RuleDerivation> &currentDerivations, int i, Grammar &g)
+{
+  RuleDerivation &rd = currentDerivations.at(i);
+  RuleStack &rs = rd.first;
+  Word &w = rd.second;
+  RuleRunner &rr = rs.back();
+
+  // check if acepted
+  if (rs.size() == 1)
+  {
+    if (rs.back().finish())
+      return true; // acepted
+  }
+
+  // check if rule finished
+  if (rr.finish())
+  {
+    RuleNode *node = new RuleNode;
+    *node = rr.node;
+    node->rule = new Rule;
+    *node->rule = rr.rule;
+    rs.pop_back();
+    rs.back().next();
+    rs.back().node.nodes.push_back(*node);
+    return false;
+  }
+  if (w.size() == 0)
+  {
+    currentDerivations.erase(currentDerivations.begin() + i);
+    return false;
+  }
+
+  if (g.isTerminal(rr.rule.right.at(rr.index)))
+  {
+    if (w.at(0) == rr.rule.right.at(rr.index))
+    {
+      Symbol *newS = new Symbol;
+      *newS = rr.rule.right.at(rr.index);
+      RuleNode *newRuleNode = new RuleNode{newS};
+      rr.node.nodes.push_back(*newRuleNode);
+
+      w.erase(w.begin());
+      rr.next();
+      return false;
+    }
+    else
+    {
+      currentDerivations.erase(currentDerivations.begin() + i);
+      return false;
+    }
+  }
+  else // is no terminal
+  {
     vector<Rule> avRules;
     for (Rule r : g.rules)
-      if (r.left == s)
+      if (r.left == rr.rule.right.at(rr.index))
         avRules.push_back(r);
 
     for (Rule r : avRules)
     {
       RuleRunner newRr{r, 0};
       RuleStack newRuleStack = rs;
-      newRuleStack.back().node.nodes.push_back(newRr.node);
+      // newRuleStack.back().node.nodes.push_back(newRr.node);
       newRuleStack.push_back(newRr);
-      crtRules.push_back({newRuleStack, w});
+      currentDerivations.push_back({newRuleStack, w});
     }
-    crtRules.erase(crtRules.begin() + i);
-    continue;
+    currentDerivations.erase(currentDerivations.begin() + i);
+    return false;
   }
 }
 
-
-bool derive(Grammar g, Symbol r, Word w)
+bool derive(Grammar g, Symbol r, Word w, vector<RuleNode> &result)
 {
   vector<RuleDerivation> crtRules;
   for (int i = 0; i < g.rules.size(); i++)
@@ -104,6 +184,10 @@ bool derive(Grammar g, Symbol r, Word w)
       continue;
     RuleStack rs;
     RuleRunner rr{g.rules.at(i), 0};
+    Rule ruleCpy = g.rules.at(i);
+    Rule *ruleCpy2 = new Rule;
+    *ruleCpy2 = g.rules.at(i);
+    rr.node.rule = ruleCpy2;
 
     rs.push_back(rr);
     crtRules.push_back({rs, w});
@@ -115,120 +199,53 @@ bool derive(Grammar g, Symbol r, Word w)
   while (!finishAllRules)
   {
     bool areAllRulesFinished = true;
-    for (RuleDerivation &rd : crtRules)
-    {
-      if (rd.first.size() == 1)
-      {
-        if (rd.first.back().finish())
-        {
-          areAllRulesFinished = false;
-          break;
-        }
-      }
-    }
-    if (areAllRulesFinished)
-    {
-      finishAllRules = true;
-      continue;
-    }
-
-    /*// cout rules;
-    // cout << "crtRules:\n";
-    // for (RuleDerivation &rd : crtRules)
-    // {
-    //   cout << "rule:\n";
-    //   RuleStack &rs = rd.first;
-    //   cout << "      ruleStack:\n";
-    //   for (RuleRunner &rr : rs)
-    //   {
-    //     cout << setw(16) << rr.rule.left.name << " -> ";
-    //     for (Symbol &s : rr.rule.right)
-    //     {
-    //       cout << s.name << " ";
-    //     }
-    //     cout << " |\n";
-    //   }
-    //   cout << "      word: ";
-    //   for (Symbol n : rd.second)
-    //   {
-    //     cout << n.name << " ";
-    //   }
-
-    // }
-    // cout << endl;*/
 
     for (int i = 0; i < crtRules.size(); i++)
     {
+      printDerivations(crtRules);
+      bool result = makeDerivation(crtRules, i, g);
+      printDerivations(crtRules);
+      if(!result)
+        areAllRulesFinished = false;
+    }
+
+    if (areAllRulesFinished)
+      finishAllRules = true;
+  }
+
+  if (crtRules.size() == 0)
+  {
+    return false;
+  }
+  else
+  {
+    //first add complete rules and later not completed rules
+    for (int i = 0; i < crtRules.size(); i++)
+    {
       RuleDerivation &rd = crtRules.at(i);
-      RuleStack &rs = rd.first;
-      Word &w = rd.second;
-      if (rs.size() == 1)
-      {
-        if (rs.back().finish())
-          // acepted
-          continue;
-      }
-      // RuleRunner &rr = rs.first.back();
-      RuleRunner &rr = rs.back();
-      if (rr.finish())
-      {
-        rs.pop_back();
-        if (rs.size() != 0)
-          rs.back().next();
-        continue;
-      }
-      if (w.size() == 0)
-      {
-        crtRules.erase(crtRules.begin() + i);
-        continue;
-      }
-
-      Symbol &s = rr.rule.right.at(rr.index);
-
-      if (g.isTerminal(s))
-      {
-        if (w.at(0) == s)
-        {
-          w.erase(w.begin());
-          rr.next();
-          rr.node.nodes.push_back(RuleNode{&s});
-          continue;
-        }
-        else
-        {
-          crtRules.erase(crtRules.begin() + i);
-          continue;
-        }
-      }
-      else
-      {
-        vector<Rule> avRules;
-        for (Rule r : g.rules)
-          if (r.left == s)
-            avRules.push_back(r);
-
-        for (Rule r : avRules)
-        {
-          RuleRunner newRr{r, 0};
-          RuleStack newRuleStack = rs;
-          newRuleStack.back().node.nodes.push_back(newRr.node);
-          newRuleStack.push_back(newRr);
-          crtRules.push_back({newRuleStack, w});
-        }
-        crtRules.erase(crtRules.begin() + i);
-        continue;
+      if(rd.second.size() == 0){
+        result.push_back(rd.first.at(0).node);
       }
     }
-  }
-  if (crtRules.size() == 0)
-    return false;
-  else
+    
+    for (int i = 0; i < crtRules.size(); i++)
+    {
+      RuleDerivation &rd = crtRules.at(i);
+      cout << "rulenode " << i << ":\n";
+      RuleNode rn = crtRules.at(i).first.at(0).node;
+      printRuleNode(rn);
+      if(rd.second.size() != 0)
+        result.push_back(rn);
+    }
+    
     return true;
+  }
 }
 
 bool derive(Grammar grammar, Word input) // init
 {
-  bool der = derive(grammar, grammar.start, input);
+
+  bool der = derive(grammar, grammar.start, input, );
   return der;
 }
 

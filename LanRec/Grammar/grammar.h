@@ -15,7 +15,7 @@ typedef std::vector<Symbol> Word;
 
 struct Symbol
 {
-  char* name;
+  std::string name;
   Symbol();
   Symbol(char* name);
 };
@@ -23,9 +23,11 @@ struct Rule
 {
   Symbol left;
   std::vector<Symbol> right;
+  Rule &operator=(Rule &r);
 };
 bool operator==(Symbol s1, Symbol s2);
 bool operator!=(Symbol s1, Symbol s2);
+
 
 
 class Grammar
@@ -49,28 +51,28 @@ public:
 
 
 
-inline Rule cvtRule(char* a, char* b){
-  Rule r;
-  std::string s = "";
-  for (int i = 0; i < strlen(a); i++){
-    if (a[i] != ' ')
-      s += a[i];
-  }
-  while (b[0] == ' ' && strlen(b) > 0)
-    b++;
-  s = "";
-  for (int i = 0; i < strlen(b); i++)
-  {
-    if(b[i] != ' ')
-      s += b[i];
-    else {
-      r.right.push_back(Symbol{(char*)s.c_str()});
-      s = "";
-    }
-  }
+// inline Rule cvtRule(char* a, char* b){
+//   Rule r;
+//   std::string s = "";
+//   for (int i = 0; i < strlen(a); i++){
+//     if (a[i] != ' ')
+//       s += a[i];
+//   }
+//   while (b[0] == ' ' && strlen(b) > 0)
+//     b++;
+//   s = "";
+//   for (int i = 0; i < strlen(b); i++)
+//   {
+//     if(b[i] != ' ')
+//       s += b[i];
+//     else {
+//       r.right.push_back(Symbol{(char*)s.c_str()});
+//       s = "";
+//     }
+//   }
   
-  return r;
-}
+//   return r;
+// }
 
 
 

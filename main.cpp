@@ -2,7 +2,7 @@
 #include <lexer.h>
 #include <vector>
 #include <iomanip>
-#include <Convert/grammarToAutomaton.h>
+// #include <Convert/grammarToAutomaton.h>
 #include <Grammar/grammar.h>
 #include <Grammar/grammarDerivation.h>
 
@@ -59,43 +59,43 @@ char *rulesComment = newfun(void     -> 'void'
 
   );
 
-void testAutomaton()
-{
-  State q0("q0");
-  State q1("q1");
-  State q2("q2");
+// void testAutomaton()
+// {
+//   State q0("q0");
+//   State q1("q1");
+//   State q2("q2");
 
-  Alphabet a("a");
-  Alphabet b("b");
-  Alphabet c("c");
+//   Alphabet a("a");
+//   Alphabet b("b");
+//   Alphabet c("c");
 
-  Alphabet Z0("Z0");
-  Alphabet A("A");
-  Alphabet B("B");
-  Alphabet S("S");
+//   Alphabet Z0("Z0");
+//   Alphabet A("A");
+//   Alphabet B("B");
+//   Alphabet S("S");
 
-  vector<Transition> transitions(
-      {
-          {q0, q0, a, Z0, {a, Z0}},
-          {q0, q0, a, a, {a, a}},
-          {q0, q1, _eps, a, {a}},
-          {q1, q1, b, a, {_eps}},
-          {q1, q2, _eps, Z0, {_eps}},
-      });
+//   vector<Transition> transitions(
+//       {
+//           {q0, q0, a, Z0, {a, Z0}},
+//           {q0, q0, a, a, {a, a}},
+//           {q0, q1, _eps, a, {a}},
+//           {q1, q1, b, a, {_eps}},
+//           {q1, q2, _eps, Z0, {_eps}},
+//       });
 
-  AWord w{a, a, b, b};
-  AutomatonPD aut(
-      {q0, q1, q2},
-      {a, b, c},
-      {Z0, A, B, S},
-      transitions,
-      q0,
-      Z0,
-      {q2});
+//   AWord w{a, a, b, b};
+//   AutomatonPD aut(
+//       {q0, q1, q2},
+//       {a, b, c},
+//       {Z0, A, B, S},
+//       transitions,
+//       q0,
+//       Z0,
+//       {q2});
 
-  bool r = aut.run(w);
-  cout << r << endl;
-}
+//   bool r = aut.run(w);
+//   cout << r << endl;
+// }
 
 void testLexer()
 {
